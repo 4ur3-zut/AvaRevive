@@ -5,4 +5,5 @@ Il s'agit d'un userscript qui utilise le premier lien du statut d'un utilisateur
 Etat actuel: brouillon mais fonctionnel :)
 
 install: `npm i`
+
 build: `npm run build`
