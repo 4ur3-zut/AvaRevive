@@ -12,7 +12,9 @@ localforage.getItem('knownAvatars').then(
 
     /**
      * find a post's avatar
-     * @param {*} user the id of the user to find the avatar of
+     *
+     * @param {string} user the id of the user to find the avatar of
+     * @returns {string | null} url if a new url is found
      */
     const findAvatar = async (user) => {
       const profileRequest = await fetch(`https://twinoid.com/user/${user}`)
@@ -35,8 +37,9 @@ localforage.getItem('knownAvatars').then(
 
     /**
      * get the avatar and set if found
-     * @param {*} post the post to revive
-     * @param {*} user user ID
+     *
+     * @param {Element} post the post to revive
+     * @param {string} user user ID
      */
     const revive = async (post, user) => {
       const avatarUrl = await findAvatar(user)
@@ -48,8 +51,9 @@ localforage.getItem('knownAvatars').then(
 
     /**
      * change avatar from memory
-     * @param {*} post the post where the avatar is located
-     * @param {*} user user ID
+     *
+     * @param {Element} post the post where the avatar is located
+     * @param {string} user user ID
      */
     const reviveFast = async (post, user) => {
       const avaContainer = post.querySelector('.tid_floatBox')
