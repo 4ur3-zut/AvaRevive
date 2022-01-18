@@ -17,6 +17,41 @@ localforage.getItem('knownAvatars').then(
     style.innerText = '.tid_content.tid_modinit { display: none!important; }'
 
     /**
+     * create a new observer
+     * 
+     * @param {Element} element the element that needs to be observed
+     */
+    const createObserver = element => {
+      const o = new MutationObserver(async () => {
+        const posts = [
+          ...document.getElementsByClassName('tid_comment')
+        ]
+        for (const post of posts) {
+          const slow = []
+          const fast = []
+          if (!post.classList.contains('parsed')) {
+            post.classList.add('parsed')
+
+            const userElem = post.getElementsByClassName('tid_user')[0]
+
+            if (!userElem) continue // <- continue gracefully if data is not found
+
+            const user = userElem.getAttribute('tid_id')
+            if (user in knownAvatars) fast.push([post, user]) // do fast if possible
+            slow.push([post, user]) // do slows anyways to check if url changed
+
+            for (const [p, u] of fast) reviveFast(p, u)
+            for (const [p, u] of slow) revive(p, u)
+          }
+        }
+      })
+      o.observe(
+        element,
+        {childList: true}
+      )
+    }
+
+    /**
      * find a post's avatar
      *
      * @param {string} user the id of the user to find the avatar of
@@ -138,7 +173,7 @@ localforage.getItem('knownAvatars').then(
     }
 
     /**
-     * look for new forum post headers and
+     * look for new forum and nexus post/comment headers and nexus likes and
      * send for revival all that have not been revived
      */
     const watch = () => {
@@ -167,6 +202,10 @@ localforage.getItem('knownAvatars').then(
 
             for (const [p, u] of fast) reviveFast(p, u)
             for (const [p, u] of slow) revive(p, u)
+          }
+
+          if (post.classList.contains('tid_wallEvent')) {
+            createObserver(post.children[1])
           }
         }
         o.observe(
