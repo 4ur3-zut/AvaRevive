@@ -2,6 +2,12 @@
 
 import localforage from 'localforage'
 
+const avatarDimensions = {
+  'forum': 80,
+  'nexus': 48,
+  'liker': 24
+}
+
 localforage.getItem('knownAvatars').then(
   (knownAvatars) => {
     if (!knownAvatars) knownAvatars = {}
@@ -36,6 +42,40 @@ localforage.getItem('knownAvatars').then(
     }
 
     /**
+     * create an avatar container for the Nexus if needed, then append it
+     * 
+     * @param {Element} post the post that is being revived
+     * @returns {Element} the element where the revived avatar will be inserted
+     */
+    const makeNexusContainer = post => {
+      const existingDiv = post.getElementsByClassName('tid_twinoidAvatar')[0]
+
+      let containerTd
+      if (existingDiv.classList.contains('tid_default')) {
+        const containerTable = document.createElement('table')
+        const containerTbody = document.createElement('tbody')
+        const containerTr = document.createElement('tr')
+        containerTd = document.createElement('td')
+
+        containerTd.style.width = '48px'
+        containerTd.style.height = '24px'
+
+        containerTr.append(containerTd)
+        containerTbody.append(containerTr)
+        containerTable.append(containerTbody)
+
+        existingDiv.lastChild.remove()
+        existingDiv.append(containerTable)
+      } else {
+        containerTd = existingDiv.getElementsByTagName('td')[0]
+      }
+
+      containerTd.style.setProperty('background-color', 'transparent', 'important')
+      containerTd.style.boxShadow = 'none'
+      return containerTd
+    }
+
+    /**
      * get the avatar and set if found
      *
      * @param {Element} post the post to revive
@@ -56,7 +96,24 @@ localforage.getItem('knownAvatars').then(
      * @param {string} user user ID
      */
     const reviveFast = async (post, user) => {
-      const avaContainer = post.querySelector('.tid_floatBox')
+	    const forumAvaContainer = post.getElementsByClassName('tid_floatBox')
+
+      let containerType
+      if (forumAvaContainer.length) {
+        containerType = 'forum'
+      } else if (post.classList.contains('tid_liker')) {
+        containerType = 'liker'
+      } else {
+        containerType = 'nexus'
+      }
+
+      let avaContainer
+      if (containerType === 'forum') {
+        avaContainer = forumAvaContainer[0]
+      } else {
+        avaContainer = makeNexusContainer(post)
+      }
+
       const video = (knownAvatars[user].match(/.+\.(mp4|webm)$/) || [])[1]
       const revived = document.createElement(video ? 'video' : 'img')
       if (video) {
@@ -71,8 +128,11 @@ localforage.getItem('knownAvatars').then(
       } else {
         revived.src = knownAvatars[user]
       }
-      revived.style.maxWidth = '80px'
-      revived.style.maxHeight = '80px'
+
+      const dims = avatarDimensions[containerType]
+      revived.style.maxWidth = dims + 'px'
+      revived.style.maxHeight = dims + 'px'
+
       while (avaContainer.children.length) avaContainer.lastChild.remove()
       avaContainer.append(revived)
     }
@@ -85,7 +145,10 @@ localforage.getItem('knownAvatars').then(
       const o = new MutationObserver(async () => {
         o.disconnect()
         const posts = [
-          ...document.getElementsByClassName('tid_post')
+          ...document.getElementsByClassName('tid_post'),
+          ...document.querySelectorAll('.tid_wallEvent:not(.tid_likeOnly)'),
+          ...document.getElementsByClassName('tid_comment'),
+          ...document.getElementsByClassName('tid_liker')
         ]
         for (const post of posts) {
           const slow = []
@@ -95,9 +158,10 @@ localforage.getItem('knownAvatars').then(
 
             const userElem = post.getElementsByClassName('tid_user')[0]
 
-            if (!userElem) continue // <- continue gracefully if data is not found
+            const isLiker = post.classList.contains('tid_liker')
+            if (!userElem && !isLiker) continue // <- continue gracefully if data is not found
 
-            const user = userElem.getAttribute('tid_id')
+            const user = isLiker ? post.getAttribute('tid_id') : userElem.getAttribute('tid_id')
             if (user in knownAvatars) fast.push([post, user]) // do fast if possible
             slow.push([post, user]) // do slows anyways to check if url changed
 
@@ -106,7 +170,7 @@ localforage.getItem('knownAvatars').then(
           }
         }
         o.observe(
-          document.getElementById('tid_forum_right') || document.getElementsByClassName('tid_module')[0],
+          document.getElementById('tid_forum_right') || document.getElementsByClassName('tid_wallEvents')[0] || document.getElementsByClassName('tid_module')[0],
           { childList: true }
         )
       })

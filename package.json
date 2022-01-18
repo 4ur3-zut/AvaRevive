@@ -1,9 +1,9 @@
 {
   "name": "avarevive",
   "version": "0.0.4",
-  "description": "revive twinoid avatars on forums",
+  "description": "revive twinoid avatars on forums and on the nexus",
   "userScriptName": "AvaRevive",
-  "descriptionFr": "fait revivre les avatars sur les forums twinoid",
+  "descriptionFr": "fait revivre les avatars sur les forums twinoid et le nexus",
   "main": "avaRevive.mjs",
   "scripts": {
     "build": "webpack-cli && node prependUserScriptBanner.js"
