@@ -17,6 +17,8 @@ const banner = `\
 // @match             https://twinoid.com/g/asile-interessant/forum/
 // @match             https://twinoid.com/fr/tid/nexus
 // @match             https://twinoid.com/en/tid/nexus
+// @match             https://twinoid.com/fr/
+// @match             https://twinoid.com/en/
 // ==/UserScript==
 `
 
