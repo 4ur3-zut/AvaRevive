@@ -107,6 +107,9 @@ localforage.getItem('knownAvatars').then(
 
       containerTd.style.setProperty('background-color', 'transparent', 'important')
       containerTd.style.boxShadow = 'none'
+
+      existingDiv.style.backgroundColor = 'transparent'
+      existingDiv.style.boxShadow = 'none'
       return containerTd
     }
 
@@ -131,7 +134,7 @@ localforage.getItem('knownAvatars').then(
      * @param {string} user user ID
      */
     const reviveFast = async (post, user) => {
-	    const forumAvaContainer = post.getElementsByClassName('tid_floatBox')
+      const forumAvaContainer = post.getElementsByClassName('tid_floatBox')
 
       let containerType
       if (forumAvaContainer.length) {
@@ -208,6 +211,28 @@ localforage.getItem('knownAvatars').then(
             createObserver(post.children[1])
           }
         }
+
+        const newNexusPost = document.getElementsByClassName('tid_newPost')
+        const mainAvatarEl = document.querySelector('.tid_actions a')
+        const elements = [
+          document.querySelectorAll('ul.menu li')[7],
+          document.getElementById('tid_openRight'),
+          mainAvatarEl
+        ]
+        if (newNexusPost.length) {
+          elements.push(newNexusPost[0])
+        }
+
+        for (let element of elements) {
+          if (!element.classList.contains('parsed')) {
+            element.classList.add('parsed')
+
+            const user = mainAvatarEl.href.split('/')[4]
+            if (user in knownAvatars) reviveFast(element, user) // do fast if possible
+            revive(element, user) // do slows anyways to check if url changed
+          }
+        }
+
         o.observe(
           document.getElementById('tid_forum_right') || document.getElementsByClassName('tid_wallEvents')[0] || document.getElementsByClassName('tid_module')[0],
           { childList: true }
