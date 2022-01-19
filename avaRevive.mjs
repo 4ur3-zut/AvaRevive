@@ -181,6 +181,9 @@ localforage.getItem('knownAvatars').then(
      */
     const watch = () => {
       const o = new MutationObserver(async () => {
+        const mainAvatarEl = document.querySelector('.tid_actions a')
+        if (!mainAvatarEl) return
+
         o.disconnect()
         const posts = [
           ...document.getElementsByClassName('tid_post'),
@@ -213,7 +216,7 @@ localforage.getItem('knownAvatars').then(
         }
 
         const newNexusPost = document.getElementsByClassName('tid_newPost')
-        const mainAvatarEl = document.querySelector('.tid_actions a')
+
         const elements = [
           document.querySelectorAll('ul.menu li')[7],
           document.getElementById('tid_openRight'),
