@@ -3,9 +3,9 @@
 import localforage from 'localforage'
 
 const avatarDimensions = {
-  'forum': 80,
-  'nexus': 48,
-  'liker': 24
+  forum: 80,
+  nexus: 48,
+  liker: 24
 }
 
 localforage.getItem('knownAvatars').then(
@@ -18,7 +18,7 @@ localforage.getItem('knownAvatars').then(
 
     /**
      * create a new observer
-     * 
+     *
      * @param {Element} element the element that needs to be observed
      */
     const createObserver = element => {
@@ -47,7 +47,7 @@ localforage.getItem('knownAvatars').then(
       })
       o.observe(
         element,
-        {childList: true}
+        { childList: true }
       )
     }
 
@@ -78,7 +78,7 @@ localforage.getItem('knownAvatars').then(
 
     /**
      * create an avatar container for the Nexus if needed, then append it
-     * 
+     *
      * @param {Element} post the post that is being revived
      * @returns {Element} the element where the revived avatar will be inserted
      */
@@ -181,15 +181,15 @@ localforage.getItem('knownAvatars').then(
      */
     const watch = () => {
       const o = new MutationObserver(async () => {
-        const mainAvatarEl = document.querySelector('.tid_actions a')
+        const mainAvatarEl = document.querySelector('.tid_actions a') // avatar inside notification panel
         if (!mainAvatarEl) return
 
         o.disconnect()
         const posts = [
-          ...document.getElementsByClassName('tid_post'),
-          ...document.querySelectorAll('.tid_wallEvent:not(.tid_likeOnly)'),
-          ...document.getElementsByClassName('tid_comment'),
-          ...document.getElementsByClassName('tid_liker')
+          ...document.querySelectorAll('[id^=tid_forumPost]'), // forums posts
+          ...document.querySelectorAll('.tid_wallEvent:not(.tid_likeOnly)'), // nexus posts
+          ...document.getElementsByClassName('tid_comment'), // nexus comments
+          ...document.getElementsByClassName('tid_liker') // nexus likes
         ]
         for (const post of posts) {
           const slow = []
@@ -218,15 +218,15 @@ localforage.getItem('knownAvatars').then(
         const newNexusPost = document.getElementsByClassName('tid_newPost')
 
         const elements = [
-          document.querySelectorAll('ul.menu li')[7],
-          document.getElementById('tid_openRight'),
+          document.querySelectorAll('ul.menu li')[7], // <- "my profile" tab
+          document.getElementById('tid_openRight'), // <- top right notification area
           mainAvatarEl
         ]
         if (newNexusPost.length) {
           elements.push(newNexusPost[0])
         }
 
-        for (let element of elements) {
+        for (const element of elements) {
           if (!element.classList.contains('parsed')) {
             element.classList.add('parsed')
 
