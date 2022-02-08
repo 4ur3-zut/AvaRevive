@@ -219,7 +219,7 @@ localforage.getItem('knownAvatars').then(
           userAvatars.push(newNexusPost[0])
         }
         for (const element of userAvatars) {
-          if (!element.classList.contains('parsed')) {
+          if (element && !element.classList.contains('parsed')) {
             element.classList.add('parsed')
             if (loggedUser in knownAvatars) reviveFast(element, loggedUser) // do fast if possible
             revive(element, loggedUser) // do slow anyways to check if url changed
@@ -228,7 +228,9 @@ localforage.getItem('knownAvatars').then(
 
         // reconnect observer:
         o.observe(
-          document.getElementById('tid_forum_right') || document.getElementsByClassName('tid_wallEvents')[0] || document.getElementsByClassName('tid_module')[0],
+          document.getElementById('tid_forum_right') ||
+          document.getElementsByClassName('tid_wallEvents')[0] ||
+          document.getElementsByClassName('tid_module')[0],
           { childList: true }
         )
       })
